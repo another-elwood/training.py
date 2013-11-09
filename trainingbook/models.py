@@ -1,8 +1,7 @@
 __author__ = 'elwood'
 
-#from mongoengine import *
 import datetime
-from flask import url_for
+#from flask import url_for
 from trainingbook import db
 
 class Exercise(db.Document):
@@ -12,6 +11,9 @@ class Exercise(db.Document):
         'allow_inheritance': True,
         'ordering': ['name']
     }
+
+    def __unicode__(self):
+        return self.name
 
 
 class Set(db.EmbeddedDocument):
@@ -31,6 +33,10 @@ class PerformedExercise(db.EmbeddedDocument):
 class Cycle(db.Document):
     name = db.StringField(required=True, max_length=50)
     exercises = db.ListField(db.ReferenceField(Exercise))
+
+    def __unicode__(self):
+        return self.name
+
     def __str__(self):
         return '{0} with {1} exercise(s)'.format(self.name, len(list(self.exercises)))
 
@@ -41,6 +47,7 @@ class Workout(db.Document):
     duration = db.IntField(min_value=0)
     motivation = db.IntField(min_value=0, max_value=5)
     exercises = db.ListField(db.EmbeddedDocumentField(PerformedExercise))
+
     def __str__(self):
         return '"{0}" @ {1} performed {2} exercise(s) with motivation of {3}'.format(self.cycle.name,
                                                                                  self.timestamp,
