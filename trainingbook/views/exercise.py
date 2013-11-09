@@ -15,7 +15,14 @@ def index():
 def add():
     abort(404)
 
-@mod.route('/edit')
+@mod.route('/edit/<id>')
 def edit(id):
-    abort(404)
-
+    exercise = Exercise.objects.get_or_404(id=id)
+    form_cls = model_form(exercise.__class__)
+    form = form_cls(obj=exercise)
+    context = {
+            "exercise": exercise,
+            "form": form
+        }
+    return render_template('exercises/edit.html', **context)
+    #abort(404)
