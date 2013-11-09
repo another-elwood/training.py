@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block page_header %}
+    <h1>Exercises</h1>
+{% endblock %}
+
+{% block content %}
+    {% for exercise in exercises %}
+      <h2>{{ exercise.name }}</h2>
+      {% if exercise.muscles %}
+        {% for muscle in exercise.muscles %}
+            <p>{{ muscle }}</p>
+        {% endfor %}
+      {% endif %}
+    {% endfor %}
+{% endblock %}
