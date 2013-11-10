@@ -5,7 +5,8 @@
 {% endblock %}
 
 {% block content %}
-<form class="form-horizontal" role="form">
+<form class="form-horizontal" method="post" action="?{{ request.query_string }}">
+    <fieldset>
     {% for field in form %}
         {% if field.type in ['CSRFTokenField', 'HiddenField'] %}
             {{ field() }}
@@ -14,13 +15,14 @@
                 <label for="{{ field.name }}" class="col-xs-2 control-label" style="text-transform:capitalize;">{{ field.name }}</label>
                 <div class="col-xs-10">
                     {% if field.type == 'FieldList' %}
-                         <textarea id="{{ field.name }}" class="form-control" rows="5" cols="30" placeholder="Enter data list (one per line)">{{ field.object_data|join('\n') }}</textarea>
+                         <textarea id="{{ field.name }}" name="{{ field.name }}" class="form-control" rows="5" cols="30" placeholder="Enter data list (one per line)">{{ field.object_data|join('\n') }}</textarea>
                     {% else %}
-                        <input type="text" class="form-control" id="{{ field.name }}" value="{{ field.object_data }}">
+                        <input type="text" class="form-control" name="{{ field.name }}" id="{{ field.name }}" value="{{ field.object_data }}">
                     {% endif %}
                 </div>
             </div>
         {% endif %}
+    </fieldset>
     {% endfor %}
     <div class="form-group">
         <div class="col-xs-offset-2 col-xs-10">
