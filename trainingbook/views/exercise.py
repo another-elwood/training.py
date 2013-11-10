@@ -11,6 +11,10 @@ def index():
      exercises = Exercise.objects.all()
      return render_template('exercises/list.html', exercises=exercises)
 
+@mod.route('/delete/<id>')
+def delete(id):
+    abort(404)
+
 @mod.route('/add')
 def add():
     abort(404)
