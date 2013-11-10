@@ -15,14 +15,41 @@ def index():
 def add():
     abort(404)
 
-@mod.route('/edit/<id>')
+@mod.route('/edit/<id>', methods=['GET', 'POST'])
 def edit(id):
-    exercise = Exercise.objects.get_or_404(id=id)
-    form_cls = model_form(exercise.__class__)
-    form = form_cls(obj=exercise)
+    context = get_context(id)
+
+    if request.method == 'POST':
+        form = context.get('form')
+        if form.validate():
+            exercise = context.get('exercise')
+            form.populate_obj(exercise)
+            exercise.save()
+            return redirect(url_for('exercises.index'))
+    return render_template('exercises/edit.html', **context)
+
+def get_context(id=None):
+    if id:
+        # edit
+        exercise = Exercise.objects.get_or_404(id=id)
+        form_cls = model_form(exercise.__class__)
+
+        if request.method == 'POST':
+            form = form_cls(request.form, inital=exercise._data)
+            # process single line list
+            for muscle in request.form['muscles'].split('\r\n'):
+                form.muscles.append_entry(muscle)
+        else:
+            form = form_cls(obj=exercise)
+    else:
+        # create
+        exercise = Exercise()
+        form_cls = model_form(exercise.__class__)
+        form = form_cls(request.form)
+
     context = {
             "exercise": exercise,
-            "form": form
+            "form": form,
+            "create": id is None
         }
-    return render_template('exercises/edit.html', **context)
-    #abort(404)
+    return context
