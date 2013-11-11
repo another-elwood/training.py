@@ -7,6 +7,7 @@ from trainingbook import db
 class Exercise(db.Document):
     name = db.StringField(required=True, max_length=75)
     muscles = db.ListField(db.StringField(max_length=50))
+    description = db.StringField(max_length=100)
     meta = {
         'allow_inheritance': True,
         'ordering': ['name']
