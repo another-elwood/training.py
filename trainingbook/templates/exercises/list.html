@@ -31,7 +31,7 @@
                             </ul>
                         {% endif %}
                     </td>
-                    <td>{{ exercise.description }}</td>
+                    <td>{% if exercise.description %}{{ exercise.description }}{% endif %}</td>
                     <td>
                         <a href="{{ url_for('exercises.edit', id=exercise.id) }}">
                             <button class="btn btn-primary"><i class="fa fa-pencil"></i></button>
