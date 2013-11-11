@@ -11,13 +11,18 @@
         {% if field.type in ['CSRFTokenField', 'HiddenField'] %}
             {{ field() }}
         {% else %}
-            <div class="form-group">
+            <div class="form-group {% if field.errors %}has-error{% endif %}">
                 <label for="{{ field.name }}" class="col-xs-2 control-label" style="text-transform:capitalize;">{{ field.name }}</label>
                 <div class="col-xs-10">
                     {% if field.type == 'FieldList' %}
-                         <textarea id="{{ field.name }}" name="{{ field.name }}" class="form-control" rows="5" cols="30" placeholder="Enter data list (one per line)">{{ field.object_data|join('\n') }}</textarea>
+                         <textarea id="{{ field.name }}" name="{{ field.name }}" class="form-control" rows="5" cols="30"
+                                   placeholder="Enter data list (one per line)">{{ field.object_data|join('\n') }}</textarea>
                     {% else %}
-                        <input type="text" class="form-control" name="{{ field.name }}" id="{{ field.name }}" {% if field.object_data %}value="{{ field.object_data }}"{% endif %} placeholder="Enter {{ field.name }}">
+                        <input type="text" class="form-control" name="{{ field.name }}" id="{{ field.name }}"
+                               {% if field.object_data %}value="{{ field.object_data }}"{% endif %} placeholder="Enter {{ field.name }}">
+                        {% if field.errors %}
+                            <span class="help-block">{{ field.errors|join}}</span>
+                        {% endif %}
                     {% endif %}
                 </div>
             </div>
