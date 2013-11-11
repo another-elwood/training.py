@@ -15,12 +15,15 @@ def index():
 def delete(id):
     abort(404)
 
-@mod.route('/add')
+@mod.route('/add', methods=['GET', 'POST'])
 def add():
-    abort(404)
+    return get_page()
 
 @mod.route('/edit/<id>', methods=['GET', 'POST'])
 def edit(id):
+    return get_page(id)
+
+def get_page(id=None):
     context = get_context(id)
 
     if request.method == 'POST':
@@ -50,6 +53,10 @@ def get_context(id=None):
         exercise = Exercise()
         form_cls = model_form(exercise.__class__)
         form = form_cls(request.form)
+        # process single line list
+        if 'muscles' in request.form:
+            for muscle in request.form['muscles'].split('\r\n'):
+                form.muscles.append_entry(muscle)
 
     context = {
             "exercise": exercise,
