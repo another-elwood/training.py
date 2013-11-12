@@ -36,7 +36,7 @@
                         <a href="{{ url_for('exercises.edit', id=exercise.id) }}">
                             <button class="btn btn-primary"><i class="fa fa-pencil"></i></button>
                         </a>
-                        <a href="{{ url_for('exercises.delete', id=exercise.id) }}">
+                        <a class="confirmLink" href="{{ url_for('exercises.delete', id=exercise.id) }}">
                             <button class="btn btn-danger"><i class="fa fa-trash-o"></i></button>
                         </a>
                     </td>
@@ -44,4 +44,34 @@
             {% endfor %}
         </tbody>
     </table>
+    <div id="dialog" title="Confirmation Required">Are you sure about this?</div>
+{% endblock %}
+
+{% block js_footer %}
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $("#dialog").dialog({
+                autoOpen: false,
+                modal: true
+            });
+        });
+
+        $(".confirmLink").click(function (e) {
+            e.preventDefault();
+            var targetUrl = $(this).attr("href");
+
+            $("#dialog").dialog({
+                buttons: {
+                    "Confirm": function () {
+                        window.location.href = targetUrl;
+                    },
+                    "Cancel": function () {
+                        $(this).dialog("close");
+                    }
+                }
+            });
+
+            $("#dialog").dialog("open");
+        });
+    </script>
 {% endblock %}
