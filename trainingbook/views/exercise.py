@@ -13,7 +13,9 @@ def index():
 
 @mod.route('/delete/<id>')
 def delete(id):
-    abort(404)
+    exercise = Exercise.objects.get_or_404(id=id)
+    exercise.delete()
+    return redirect(url_for('exercises.index'))
 
 @mod.route('/add', methods=['GET', 'POST'])
 def add():
@@ -44,7 +46,7 @@ def get_context(id=None):
         if request.method == 'POST':
             form = form_cls(request.form, inital=exercise._data)
             # process single line list
-            for muscle in request.form['muscles'].split('\r\n'):
+            for muscle in filter(None, request.form['muscles'].split('\r\n')):
                 form.muscles.append_entry(muscle)
         else:
             form = form_cls(obj=exercise)
@@ -55,7 +57,7 @@ def get_context(id=None):
         form = form_cls(request.form)
         # process single line list
         if 'muscles' in request.form:
-            for muscle in request.form['muscles'].split('\r\n'):
+            for muscle in filter(None, request.form['muscles'].split('\r\n')):
                 form.muscles.append_entry(muscle)
 
     context = {
