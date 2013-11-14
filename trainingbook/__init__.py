@@ -11,8 +11,9 @@ app.config['WTF_CSRF_ENABLED'] = False
 db = MongoEngine(app)
 
 # register blueprints
-from trainingbook.views import exercise
+from trainingbook.views import exercise, cycle
 app.register_blueprint(exercise.mod)
+app.register_blueprint(cycle.mod)
 
 
 if __name__ == '__main__':

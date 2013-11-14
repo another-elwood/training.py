@@ -8,7 +8,8 @@ mod = Blueprint('cycles', __name__, url_prefix='/cycles', template_folder='templ
 
 @mod.route('/')
 def index():
-    abort(404)
+    cycles = Cycle.objects.all()
+    return render_template('cycles/list.html', cycles=cycles)
 
 @mod.route('/add', methods=['GET', 'POST'])
 def add():
