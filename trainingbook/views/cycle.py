@@ -21,7 +21,9 @@ def edit(id):
 
 @mod.route('/delete/<id>')
 def delete(id):
-    abort(404)
+    cycle = Cycle.objects.get_or_404(id=id)
+    cycle.delete()
+    return redirect(url_for('cycles.index'))
 
 def get_page(id=None):
     context = get_context(id)
