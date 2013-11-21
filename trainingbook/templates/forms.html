@@ -1,0 +1,90 @@
+{% macro render(form) -%}
+    <fieldset>
+    {% for field in form %}
+        {% if field.type in ['CSRFTokenField', 'HiddenField'] %}
+            {{ field() }}
+        {% else %}
+            {# {{ field() }} #}
+            <div class="form-group {% if field.errors %}has-error{% endif %}">
+                <label for="{{ field.name }}" class="col-xs-2 control-label" style="text-transform:capitalize;">{{ field.name|replace("_", " ") }}</label>
+                <div class="col-xs-10">
+                    {# <span>{{field.type}}</span> #}
+                    {% if field.type == 'FieldList' %}
+                        {{ render_fieldlist(field) }}
+                    {% elif field.type == 'ModelSelectMultipleField' %}
+                        {{ render_multi_select(field) }}
+                    {% elif field.type == 'StringField' %}
+                        {{ render_text(field) }}
+                    {% elif field.type == 'BooleanField' %}
+                        {{ render_checkbox(field) }}
+                    {% else %}
+                        {{ field() }}
+                    {% endif %}
+                    {% if field.errors %}
+                        <span class="help-block">{{ field.errors|join(" ")}}</span>
+                    {% endif %}
+                </div>
+            </div>
+        {% endif %}
+    {% endfor %}
+    </fieldset>
+{% endmacro %}
+
+{% macro render_multi_select(field) -%}
+<select multiple class="form-control" id="{{ field.name }}" name="{{ field.name }}">
+    {% for item in field.queryset %}
+        <option {% if item in field.data %}selected{% endif %} value="{{ item.id }}">{{ item }}</option>
+    {% endfor %}
+</select>
+{% endmacro %}
+
+{% macro render_text(field) -%}
+<input type="text" class="form-control" name="{{ field.name }}" id="{{ field.name }}"
+   {% if field.object_data %}value="{{ field.object_data }}"{% endif %} placeholder="Enter {{ field.name }}">
+{% endmacro %}
+
+{% macro render_checkbox(field) -%}
+<div class="checkbox">
+    <label>
+        <input type="checkbox" name="{{ field.name }}" id="{{ field.name }}" value="y"
+                {% if field.object_data %}checked="checked"{% endif %}>
+    </label>
+</div>
+{% endmacro %}
+
+{% macro render_fieldlist(field) -%}
+    {% if field.object_data and field.object_data[0].type == 'PlannedExercise' %}
+         {{ render_planned_exercise(field) }}
+    {% else %}
+        {# {{ field() }} #}
+        <textarea id="{{ field.name }}" name="{{ field.name }}" class="form-control" rows="5" cols="30"
+               placeholder="Enter data list (one per line)">{{ field.object_data|join('\n') }}</textarea>
+    {% endif %}
+{% endmacro %}
+
+{% macro render_planned_exercise(field) -%}
+    <span>{{ field.data }}</span><br/>
+    <table>
+    {% for item in field.data %}
+        <tr>
+        {# render single planned exercise #}
+            <td>
+                <div class="controls form-inline">
+                    <label for="{{item}}_position">Position</label>
+                    <input type="text" class="input-small" id="{{item}}_position" placeholder="Enter position"
+                            {% if item.position %}value="{{ item.position }}"{% endif %}>
+                </div>
+            </td>
+            <td>Exercisepicker here</td>
+            <td>
+                <div class="controls form-inline">
+                    <label for="exampleInputEmail2">Email address</label>
+                    <input type="email" class="input-small" id="exampleInputEmail2" placeholder="Enter email">
+                    <label for="exampleInputEmail2">Email address</label>
+                    <input type="email" class="input-small" id="exampleInputEmail2" placeholder="Enter email">
+                </div>
+            </td>
+        </tr>
+    {% endfor%}
+    </table>
+{% endmacro %}
