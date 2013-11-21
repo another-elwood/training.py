@@ -1,0 +1,196 @@
+{% extends "base.html" %}
+{% import 'forms.html' as forms %}
+
+{% block page_header %}
+    <h1>Edit Cycle</h1>
+{% endblock %}
+
+{% macro generate_options(exercises, selected=None) -%}
+    {% for exercise in exercises %}
+        <option {% if selected %}{% if selected.id == exercise.id %}selected="selected"{% else %}disabled="disabled"{% endif %}{% endif %}
+                value="{{ exercise.id }}" {% if exercise.use_weight %}class="weight"{% endif %}>{{ exercise.name }}</option>
+    {% endfor %}
+{% endmacro %}
+
+{% block content %}
+<form class="form-horizontal" role="form" method="post">
+  <div class="form-group">
+    <label for="inputName" class="col-xs-2 control-label">Name</label>
+    <div class="col-xs-10">
+      <input type="text" class="form-control" id="inputName" name="name" placeholder="Enter Name" value="{{ cycle.name }}" required>
+    </div>
+  </div>
+  <div class="form-group">
+    <label for="inputExercises" class="col-xs-2 control-label">Exercises</label>
+    <div class="col-xs-10">
+      <!-- show some kind of table here -->
+      <div class="row">
+        <div class="col-xs-3">
+          <select id="newexercise" class="form-control">
+            {{ generate_options(exercises) }}
+          </select>
+        </div>
+        <button title="Add Exercise" class="btn btn-primary btn-small addexercise"><i class="fa fa-plus-circle"></i> Add Exercise</button>
+      </div>
+      <div class="row">
+        <table id="sort" class="table table-hover">
+          <thead>
+            <th>Name</th>
+            <th>Sets</th>
+          </thead>
+          <tbody>
+            {% for plan in cycle.exercises %}
+                {% set outer_loop = loop %}
+                <tr class="exercise">
+                    <td class="col-xs-3">
+                        <select class="form-control exercise" name="exercise-{{ loop.index }}">
+                            {{ generate_options(exercises, plan.exercise) }}
+                        </select>
+                    </td>
+                    <td class="col-xs-6">
+                        <table class="table table-hover sets">
+                            <thead>
+                                <th>Repetitions</th>
+                                {% if plan.exercise.use_weight %}
+                                    <th>Weight (kg)</th>
+                                {% endif %}
+                                <th><button title="Add Set" class="btn btn-primary btn-xs addset"><i class="fa fa-plus-circle"></i> Add Set</button></th>
+                            </thead>
+                            <tbody>
+                                {% for set in plan.sets %}
+                                    <tr>
+                                        <td>
+                                            <input type="number" class="form-control" value="{{ set.repetitions }}" required name="set-{{ outer_loop.index }}-{{ loop.index }}-reps">
+                                        </td>
+                                        {% if plan.exercise.use_weight %}
+                                            <td>
+                                                <input type="number" step="any" class="form-control" value="{{ set.weight }}" required name="set-{{ outer_loop.index }}-{{ loop.index }}-weight">
+                                            </td>
+                                        {% endif %}
+                                        <td><button title="Remove Set" class="btn btn-danger btn-small removeset"><i class="fa fa-trash-o"></i></button><td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </td>
+                    <td class="col-xs-4">
+                        <button title="Remove Exercise" class="btn btn-danger btn-small removeexercise"><i class="fa fa-trash-o"></i></button>
+                    </td>
+                </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  <div class="form-group">
+    <div class="col-xs-offset-2 col-xs-10">
+        <button type="submit" class="btn btn-primary">Save</button>
+        <a href="{{ url_for('cycles.index') }}" class="btn btn-default">Cancel</a>
+    </div>
+  </div>
+</form>
+{% endblock %}
+
+{% block js_footer%}
+<script type="text/javascript">
+  // Return a helper with preserved width of cells
+  var fixHelperModified = function(e, tr) {
+      var $originals = tr.children();
+      var $helper = tr.clone();
+      $helper.children().each(function(index)
+      {
+        $(this).width($originals.eq(index).width())
+      });
+      return $helper;
+  };
+
+  $("#sort > tbody").sortable({
+    helper: fixHelperModified
+  }).disableSelection();
+
+  function getNewSetRow(weight, exerciseNumber, setNumber) {
+    var columns = '<td><input type="number" class="form-control" required name="set-' + exerciseNumber + '-' + setNumber + '-reps"></td>';
+    if (weight) {
+      columns += '<td><input type="number" step="any" class="form-control" required name="set-' + exerciseNumber + '-' + setNumber + '-weight"></td>';
+    }
+    columns += '<td><button title="Remove Set" class="btn btn-danger btn-small removeset"><i class="fa fa-trash-o"></i></button><td>';
+    return '<tr>' + columns + '</tr>';
+  }
+
+  function getNewExerciseRow(exercises, exerciseNumber) {
+    var clonedSelect = exercises.clone().removeAttr("id").attr("name", "exercise-" + exerciseNumber).addClass("exercise");
+    var exercise = exercises.find(":selected");
+    var weight = exercise.hasClass("weight");
+
+    clonedSelect.find("option").each(function() {
+      if ($(this).val() != exercise.val()) {
+        $(this).attr("disabled", "disabled");
+      } else {
+        $(this).attr("selected", "selected");
+      }
+    });
+
+    var exColumn = '<td class="col-xs-3">'+ $("<div />").append(clonedSelect).html() + '</td>';
+
+    var setColumn = '<td class="col-xs-6"><table class="table table-hover sets"><thead><th>Repetitions</th>';
+    if (weight) {
+      setColumn += '<th>Weight (kg)</th>';
+    }
+    setColumn += '<th><button title="Add Set" class="btn btn-primary btn-xs addset"><i class="fa fa-plus-circle"></i> Add Set</button></th></thead><tbody></tbody></table></td>';
+
+    var fillerColumn = '<td class="col-xs-4"><button title="Remove Exercise" class="btn btn-danger btn-small removeexercise"><i class="fa fa-trash-o"></i></button></td>';
+
+    return '<tr class="exercise">' + exColumn + setColumn + fillerColumn + "</tr>";
+  }
+
+  $(document).ready(function() {
+    $("#sort").on("click", "button.addset", function(e) {
+      e.preventDefault();
+
+      var row = $(this).closest("tr.exercise");
+      var setTable = row.find(".sets");
+      var setNumber = (setTable.find("tr")).size();
+
+      var exercise = row.find(".exercise");
+      var exerciseNumber = exercise.attr("name").split("-")[1];
+
+      var selected = exercise.find(":selected");
+      var weight = selected.hasClass("weight");
+
+      var newRow = $(getNewSetRow(weight, exerciseNumber, setNumber));
+      newRow.hide();
+      setTable.find('tr:last').after(newRow);
+      newRow.fadeIn(250);
+    });
+
+    $("#sort").on("click", "button.removeset", function(e) {
+      e.preventDefault();
+      var row = $(this).closest("tr");
+      row.fadeOut(250, function() {
+        row.remove();
+      });
+    });
+
+    $(".addexercise").click(function(e) {
+      e.preventDefault();
+      var exercises = $("select#newexercise");
+      // var exercise = exercises.find(":selected");
+      var exerciseNumber = $("table#sort > tbody > tr").size() + 1;
+      var newRow = $(getNewExerciseRow(exercises, exerciseNumber));
+      var lastRow = $("table#sort > tbody > tr:last");
+
+      lastRow.after(newRow);
+      newRow.fadeIn(250);
+    });
+
+    $("#sort").on("click", "button.removeexercise", function(e) {
+      e.preventDefault();
+      var row = $(this).closest("tr");
+      row.fadeOut(250, function() {
+        row.remove();
+      });
+    });
+  });
+</script>
+{% endblock %}
