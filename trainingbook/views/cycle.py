@@ -44,6 +44,9 @@ def get_page(id=None):
 def update_cycle(cycle):
     form = request.form
 
+    # update name
+    cycle.name = form["name"]
+
     # add new exercise(s)
     exercise_counter = len(cycle.exercises) + 1
     form_exercise = "exercise-{0}".format(exercise_counter)
