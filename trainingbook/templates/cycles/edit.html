@@ -18,7 +18,7 @@
   <div class="form-group">
     <label for="inputName" class="col-xs-2 control-label">Name</label>
     <div class="col-xs-10">
-      <input type="text" class="form-control" id="inputName" name="name" placeholder="Enter Name" value="{{ cycle.name }}" required>
+      <input type="text" class="form-control" id="inputName" name="name" placeholder="Enter Name" value="{% if cycle.name %}{{ cycle.name }}{% endif %}" required>
     </div>
   </div>
   <div class="form-group">
