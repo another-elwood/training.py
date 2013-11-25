@@ -13,6 +13,7 @@
 {% endmacro %}
 
 {% block content %}
+<div style="display: none;" id="excount">{{ cycle.exercises|count }}</div>
 <form class="form-horizontal" role="form" method="post">
   <div class="form-group">
     <label for="inputName" class="col-xs-2 control-label">Name</label>
@@ -33,6 +34,7 @@
         <button title="Add Exercise" class="btn btn-primary btn-small addexercise"><i class="fa fa-plus-circle"></i> Add Exercise</button>
       </div>
       <div class="row">
+        <input id="order" type="text" style="display: none;" name="order" value="">
         <table id="sort" class="table table-hover">
           <thead>
             <th>Name</th>
@@ -105,8 +107,21 @@
       return $helper;
   };
 
+  var sortChangeHandler = function(event, ui) {
+    var order = "";
+    $("#sort > tbody > tr.exercise").each(function(index, item){
+        var ex = $(item).find("select.exercise");
+        var name = ex.attr("name");
+        var originalPosition = name.split("-")[1];
+        order += originalPosition + ",";
+    });
+    order.slice(0, -1);
+    $("#order").val(order);
+  };
+
   $("#sort > tbody").sortable({
-    helper: fixHelperModified
+    helper: fixHelperModified,
+    stop: sortChangeHandler
   }).disableSelection();
 
   function getNewSetRow(weight, exerciseNumber, setNumber) {
@@ -145,6 +160,8 @@
   }
 
   $(document).ready(function() {
+    var exCount = parseInt($("#excount").text());
+
     $("#sort").on("click", "button.addset", function(e) {
       e.preventDefault();
 
@@ -176,12 +193,15 @@
       e.preventDefault();
       var exercises = $("select#newexercise");
       // var exercise = exercises.find(":selected");
-      var exerciseNumber = $("table#sort > tbody > tr").size() + 1;
+      // var exerciseNumber = $("table#sort > tbody > tr").size() + 1;
+      var exerciseNumber = exCount + 1;
       var newRow = $(getNewExerciseRow(exercises, exerciseNumber));
       var lastRow = $("table#sort > tbody > tr:last");
 
       lastRow.after(newRow);
       newRow.fadeIn(250);
+      exCount += 1;
+      sortChangeHandler(null, null);
     });
 
     $("#sort").on("click", "button.removeexercise", function(e) {
@@ -189,6 +209,7 @@
       var row = $(this).closest("tr");
       row.fadeOut(250, function() {
         row.remove();
+        sortChangeHandler(null, null);
       });
     });
   });
