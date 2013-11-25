@@ -39,7 +39,7 @@ def get_page(id=None):
         cycle.save()
         return redirect(url_for('cycles.index'))
 
-    return render_template('cycles/new_edit.html', **context)
+    return render_template('cycles/edit.html', **context)
 
 def update_cycle(cycle):
     form = request.form
