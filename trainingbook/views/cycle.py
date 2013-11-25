@@ -16,11 +16,11 @@ def index():
 
 @mod.route('/add', methods=['GET', 'POST'])
 def add():
-    return load_cycle_page()
+    return get_page()
 
 @mod.route('/edit/<id>', methods=['GET', 'POST'])
 def edit(id):
-    return load_cycle_page(id)
+    return get_page(id)
 
 @mod.route('/delete/<id>')
 def delete(id):
@@ -30,7 +30,7 @@ def delete(id):
 
 
 @mod.route('/test', methods=['GET'])
-def load_cycle_page(id=None):
+def get_page(id=None):
     context = get_context(id)
 
     if request.method == 'POST':
@@ -96,18 +96,6 @@ def update_cycle(cycle):
         # set new position
         for i in range(len(cycle.exercises)):
             cycle.exercises[i].position = i + 1
-
-def get_page(id=None):
-    context = get_context(id)
-
-    if request.method == 'POST':
-        form = context.get('form')
-        if form.validate():
-            cycle = context.get('cycle')
-            form.populate_obj(cycle)
-            cycle.save()
-            return redirect(url_for('cycles.index'))
-    return render_template('cycles/edit.html', **context)
 
 def get_context(id=None):
     exercises = Exercise.objects.all()
