@@ -16,7 +16,7 @@ def index():
 
 @mod.route('/add', methods=['GET', 'POST'])
 def add():
-    return get_page()
+    return load_cycle_page()
 
 @mod.route('/edit/<id>', methods=['GET', 'POST'])
 def edit(id):
@@ -30,20 +30,11 @@ def delete(id):
 
 
 @mod.route('/test', methods=['GET'])
-def load_cycle_page(id):
-    exercises = Exercise.objects.all()
-
-    # sort exercises by position
-    cycle = Cycle.objects.get_or_404(id=id)
-    cycle.exercises.sort(key=operator.attrgetter('position'))
-
-    context = {
-            "cycle": cycle,
-            "exercises": exercises,
-        }
+def load_cycle_page(id=None):
+    context = get_context(id)
 
     if request.method == 'POST':
-        # update cycle
+        cycle = context.get("cycle")
         update_cycle(cycle)
         cycle.save()
         return redirect(url_for('cycles.index'))
@@ -106,8 +97,6 @@ def update_cycle(cycle):
         for i in range(len(cycle.exercises)):
             cycle.exercises[i].position = i + 1
 
-
-
 def get_page(id=None):
     context = get_context(id)
 
@@ -121,24 +110,19 @@ def get_page(id=None):
     return render_template('cycles/edit.html', **context)
 
 def get_context(id=None):
+    exercises = Exercise.objects.all()
+
     if id:
         # edit
         cycle = Cycle.objects.get_or_404(id=id)
-        form_cls = model_form(cycle.__class__)
-
-        if request.method == 'POST':
-            form = form_cls(request.form, inital=cycle._data)
-        else:
-            form = form_cls(obj=cycle)
+        cycle.exercises.sort(key=operator.attrgetter('position'))
     else:
         # create
         cycle = Cycle()
-        form_cls = model_form(cycle.__class__)
-        form = form_cls(request.form)
 
     context = {
             "cycle": cycle,
-            "form": form,
+            "exercises": exercises,
             "create": id is None
         }
     return context
