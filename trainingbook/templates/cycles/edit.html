@@ -197,10 +197,11 @@
       // var exerciseNumber = $("table#sort > tbody > tr").size() + 1;
       var exerciseNumber = exCount + 1;
       var newRow = $(getNewExerciseRow(exercises, exerciseNumber));
-      var lastRow = $("table#sort > tbody > tr:last");
-
-      lastRow.after(newRow);
-      newRow.fadeIn(250);
+//      var lastRow = $("table#sort > tbody > tr:last");
+//
+//      lastRow.after(newRow);
+//      newRow.fadeIn(250);
+      $("table#sort > tbody").append(newRow).children(':last').hide().fadeIn(250);
       exCount += 1;
       sortChangeHandler(null, null);
     });
