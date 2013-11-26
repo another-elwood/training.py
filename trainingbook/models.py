@@ -72,6 +72,10 @@ class Workout(db.Document):
     motivation = db.IntField(min_value=0, max_value=5)
     exercises = db.ListField(db.EmbeddedDocumentField(PerformedExercise))
 
+    meta = {
+            'ordering': ['-timestamp']
+    }
+
     def __str__(self):
         return '"{0}" @ {1} performed {2} exercise(s) with motivation of {3}'.format(self.cycle.name,
                                                                                  self.timestamp,
