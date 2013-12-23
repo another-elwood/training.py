@@ -21,23 +21,29 @@
             <th></th>
         </thead>
         <tbody>
-            {% for workout in workouts %}
-            <tr>
-                <td>{{ workout.timestamp }}</td>
-                <td>
-                    <a href="{{ url_for('cycles.edit', id=workout.cycle.id) }}">
-                        <button class="btn btn-info btn-xs"><i class="fa fa-eye"></i></button>
-                    </a> {{ workout.cycle.name }}
-                </td>
-                <td>{{ workout.duration }}</td>
-                <td>{{ workout.motivation }}</td>
-                <td>
-                    <a href="{{ url_for('workouts.view', id=workout.id) }}">
-                        <button class="btn btn-primary"><i class="fa fa-eye"></i></button>
-                    </a>
-                </td>
-            </tr>
-            {% endfor %}
+            {% if workouts %}
+                {% for workout in workouts %}
+                <tr>
+                    <td>{{ workout.timestamp }}</td>
+                    <td>
+                        <a href="{{ url_for('cycles.edit', id=workout.cycle.id) }}">
+                            <button class="btn btn-info btn-xs"><i class="fa fa-eye"></i></button>
+                        </a> {{ workout.cycle.name }}
+                    </td>
+                    <td>{{ workout.duration }}</td>
+                    <td>{{ workout.motivation }}</td>
+                    <td>
+                        <a href="{{ url_for('workouts.view', id=workout.id) }}">
+                            <button class="btn btn-primary"><i class="fa fa-eye"></i></button>
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            {% else %}
+                <tr>
+                    <td colspan="4">No workouts found</td>
+                </tr>
+            {% endif %}
         </tbody>
     </table>
 {% endblock %}
