@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% set active_page = "workouts" %}
+
+{% block page_header %}
+    <h1>
+        Select cycle
+    </h1>
+{% endblock %}
+
+{% block content %}
+    <table class="table table-hover table-condensed">
+        <thead>
+            <th>Name</th>
+            <th>Exercises</th>
+            <th></th>
+        </thead>
+        <tbody>
+            {% for cycle in cycles %}
+                <tr>
+                    <td>{{ cycle.name }}</td>
+                    <td>
+                        {% if cycle.exercises %}
+                            <ul>
+                            {% for exercise in cycle.exercises %}
+                                <li>{{ exercise }}</li>
+                            {% endfor %}
+                            </ul>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <a href="{{ url_for('workouts.fill', cycle_id=cycle.id) }}">
+                            <button class="btn btn-primary"><i class="fa fa-pencil"></i></button>
+                        </a>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <div id="dialog" title="Confirmation Required">Are you sure about this?</div>
+{% endblock %}
+
+{% block js_footer %}
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $("#dialog").dialog({
+                autoOpen: false,
+                modal: true
+            });
+        });
+
+        $(".confirmLink").click(function (e) {
+            e.preventDefault();
+            var targetUrl = $(this).attr("href");
+
+            $("#dialog").dialog({
+                buttons: {
+                    "Confirm": function () {
+                        window.location.href = targetUrl;
+                    },
+                    "Cancel": function () {
+                        $(this).dialog("close");
+                    }
+                }
+            });
+
+            $("#dialog").dialog("open");
+        });
+    </script>
+{% endblock %}
