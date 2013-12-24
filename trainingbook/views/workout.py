@@ -32,8 +32,14 @@ def fill(cycle_id, id=None, position=0):
         workout.save()
         return redirect(url_for('workouts.fill', cycle_id=cycle.id, id=workout.id))
 
-    # render n-th exercise input
-    return render_template('workouts/input.html', workout=workout, position=position)
+    # TODO: save input if needed
+
+    if position < len(cycle.exercises):
+        # render n-th exercise input
+        return render_template('workouts/input.html', workout=workout, position=position)
+    else:
+        # render summary
+        return render_template('workouts/summary.html', workout=workout)
 
 @mod.route('/view/<id>', methods=['GET'])
 def view(id):
