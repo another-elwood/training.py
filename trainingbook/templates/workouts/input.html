@@ -1,10 +1,70 @@
 {% extends "base.html" %}
 {% set active_page = "workouts" %}
+{% set exercise = workout.exercises[position].exercise %}
+{% set performed = workout.exercises[position] %}
 
 {% block page_header %}
-    <h1>Workout '{{ workout.cycle.name }}' <small>{{ workout.exercises[position].exercise.name }}</small></h1>
+    <h1>'{{ workout.cycle.name }}' <small id="exercise"{% if exercise.use_weight %} class="weight"{% endif %}>{{ exercise.name }} ({{ position+1 }})</small></h1>
 {% endblock %}
 
 {% block content %}
+    <table id="sets" class="table table-hover sets">
+      <thead>
+        <th>Repetitions</th>
+        {% if exercise.use_weight %}<th>Weight (kg)</th>{% endif %}
+        <th><button title="Add Set" class="btn btn-primary btn-xs addset"><i class="fa fa-plus-circle"></i> Add Set</button></th>
+      </thead>
+      <tbody>
+        {% for set in performed.sets %}
+            <tr>
+              <td><input type="number" class="form-control" value="12" required name="set-{{ loop.index }}-reps"></td>
+              {% if exercise.use_weight %}<td><input type="number" step="any" class="form-control" value="10" required name="set-{{ loop.index }}-weight"></td>{% endif %}
+              <td><button title="Remove Set" class="btn btn-danger btn-small removeset"><i class="fa fa-trash-o"></i></button><td>
+            </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    <a href="{{ url_for('workouts.fill', id=workout.id, cycle_id=workout.cycle.id, position=position+1) }}">
+        <button title="Save and next" class="btn btn-primary">
+            {% if position+1 < workout.exercises|length %}Next{% else %}End{% endif %}
+            <i class="fa fa-{% if position+1 < workout.exercises|length %}arrow-right{% else %}check{% endif %}"></i>
+        </button>
+    </a>
+{% endblock %}
 
+{% block js_footer%}
+    <script type="text/javascript">
+      function getNewSetRow(weight, setNumber) {
+        var columns = '<td><input type="number" class="form-control" required name="set-' + setNumber + '-reps"></td>';
+        if (weight) {
+          columns += '<td><input type="number" step="any" class="form-control" required name="set-' + setNumber + '-weight"></td>';
+        }
+        columns += '<td><button title="Remove Set" class="btn btn-danger btn-small removeset"><i class="fa fa-trash-o"></i></button><td>';
+        return '<tr>' + columns + '</tr>';
+      }
+
+      $(document).ready(function() {
+        $("#sets").on("click", "button.addset", function(e) {
+          e.preventDefault();
+
+          var setTable = $("#sets");
+          var setNumber = (setTable.find("tr")).size();
+
+          var weight = $("#exercise").hasClass("weight");
+
+          var newRow = $(getNewSetRow(weight, setNumber));
+          newRow.hide();
+          setTable.find('tr:last').after(newRow);
+          newRow.fadeIn(250);
+        });
+
+        $("#sets").on("click", "button.removeset", function(e) {
+          e.preventDefault();
+          var row = $(this).closest("tr");
+          row.fadeOut(250, function() {
+            row.remove();
+          });
+        });
+      });
+    </script>
 {% endblock %}
