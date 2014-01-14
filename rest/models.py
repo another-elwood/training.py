@@ -20,6 +20,15 @@ class Exercise(db.Document):
     def __str__(self):
         return self.name
 
+    def to_dict(self):
+        values = [
+            ('name', self.name),
+            ('use_weight', self.use_weight),
+            ('muscles', self.muscles),
+            ('description', self.description),
+        ]
+        return dict(values)
+
 
 class Set(db.EmbeddedDocument):
     repetitions = db.IntField(min_value=1, required=True)
@@ -28,17 +37,37 @@ class Set(db.EmbeddedDocument):
     def __str__(self):
         return '{0} repetition(s)'.format(self.repetitions)
 
+    def to_dict(self):
+        values = [
+            ('repetitions', self.repetitions),
+        ]
+        return dict(values)
 
-class WeightedSet(Set):
+
+class WeightedSet(Set,):
     weight = db.DecimalField(precision=1, min_value=0, required=True)
 
     def __str__(self):
         return '{0} repetition(s) with {1} kg'.format(self.repetitions, self.weight)
 
+    def to_dict(self):
+        values = [
+            ('repetitions', self.repetitions),
+            ('weight', float(self.weight)),
+        ]
+        return dict(values)
+
 
 class PerformedExercise(db.EmbeddedDocument):
     exercise = db.ReferenceField(Exercise)
     sets = db.ListField(db.EmbeddedDocumentField(Set))
+
+    def to_dict(self):
+        values = [
+            ('sets', [s.to_dict() for s in self.sets]),
+            ('exercise', self.exercise.to_dict()),
+        ]
+        return dict(values)
 
 
 class PlannedExercise(db.EmbeddedDocument):
@@ -53,6 +82,14 @@ class PlannedExercise(db.EmbeddedDocument):
     def __str__(self):
         return '#{0} {1}'.format(self.position, self.exercise)
 
+    def to_dict(self):
+        values = [
+            ('position', self.position),
+            ('sets', [s.to_dict() for s in self.sets]),
+            ('exercise', self.exercise.to_dict()),
+        ]
+        return dict(values)
+
 
 class Cycle(db.Document):
     name = db.StringField(required=True, max_length=50)
@@ -63,6 +100,13 @@ class Cycle(db.Document):
 
     def __str__(self):
         return '{0} with {1} exercise(s)'.format(self.name, len(list(self.exercises)))
+
+    def to_dict(self):
+        values = [
+            ('name', self.name),
+            ('exercises', [pe.to_dict() for pe in self.exercises]),
+        ]
+        return dict(values)
 
 
 class Workout(db.Document):
@@ -81,3 +125,13 @@ class Workout(db.Document):
                                                                                  self.timestamp,
                                                                                  len(list(self.exercises)),
                                                                                  self.motivation)
+
+    def to_dict(self):
+        values = [
+            ('timestamp', self.timestamp),
+            ('duration', self.duration),
+            ('motivation', self.motivation),
+            ('exercises', [e.to_dict() for e in self.exercises]),
+            ('cycle', self.cycle.to_dict()),
+        ]
+        return dict(values)
