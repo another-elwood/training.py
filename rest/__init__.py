@@ -10,11 +10,11 @@ app.config['WTF_CSRF_ENABLED'] = False
 
 db = MongoEngine(app)
 
-## register blueprints
-#from trainingbook.views import exercise, cycle, workout
-#app.register_blueprint(exercise.mod)
-#app.register_blueprint(cycle.mod)
-#app.register_blueprint(workout.mod)
+# register blueprints
+from rest.service import exercise, workout, cycle
+app.register_blueprint(exercise.mod)
+app.register_blueprint(cycle.mod)
+app.register_blueprint(workout.mod)
 
 @app.errorhandler(500)
 def custom_error(e):
