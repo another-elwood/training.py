@@ -8,6 +8,6 @@ mod = Blueprint('exercises', __name__, url_prefix='/gym/api/v1.0')
 @mod.route('/exercises', methods = ['GET'])
 def get_exercises():
     exercises = Exercise.objects.all()
-    return  jsonify(result=[ex.to_dict() for ex in exercises])
+    return  jsonify(exercises=[ex.to_dict() for ex in exercises])
 
 

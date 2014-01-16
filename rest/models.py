@@ -22,6 +22,7 @@ class Exercise(db.Document):
 
     def to_dict(self):
         values = [
+            ('id', str(self.id)),
             ('name', self.name),
             ('use_weight', self.use_weight),
             ('muscles', self.muscles),
@@ -103,6 +104,7 @@ class Cycle(db.Document):
 
     def to_dict(self):
         values = [
+            ('id', str(self.id)),
             ('name', self.name),
             ('exercises', [pe.to_dict() for pe in self.exercises]),
         ]
@@ -128,6 +130,7 @@ class Workout(db.Document):
 
     def to_dict(self):
         values = [
+            ('id', str(self.id)),
             ('timestamp', self.timestamp),
             ('duration', self.duration),
             ('motivation', self.motivation),
