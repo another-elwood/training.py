@@ -38,7 +38,7 @@
     <script type="text/javascript">
         function ExercisesViewModel() {
             var self = this;
-            self.exercisesURI = 'http://localhost:5000/gym/api/v1.0/exercises';
+            self.exercisesURI = 'http://' + '{{ host }}' + '/gym/api/v1.0/exercises';
             self.exercises = ko.observableArray();
 
             self.ajax = function(uri, method, data) {
