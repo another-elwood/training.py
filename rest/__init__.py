@@ -12,12 +12,19 @@ db = MongoEngine(app)
 
 # register blueprints
 from rest.service import exercise, workout, cycle
+from rest import client
+
+# service
 app.register_blueprint(exercise.mod)
-app.register_blueprint(cycle.mod)
 app.register_blueprint(workout.mod)
+app.register_blueprint(cycle.mod)
+
+# client
+app.register_blueprint(client.mod)
 
 @app.errorhandler(500)
 def custom_error(e):
+    #raise e
     abort(500)
 
 if __name__ == '__main__':

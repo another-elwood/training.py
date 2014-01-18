@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+{% set active_page = "exercises" %}
+
+{% block page_header %}
+    <h1>Exercises
+        <button data-bind="click: beginAdd" class="btn btn-primary btn-large">
+            <i class="fa fa-plus-circle"></i>
+        </button>
+    </h1>
+{% endblock %}
+
+{% block content %}
+    <table class="table table-hover table-condensed">
+        <thead>
+            <th>Name</th>
+            <th>Muscles</th>
+            <th>Description</th>
+            <th></th>
+        </thead>
+        <tbody>
+            <!-- ko foreach: exercises -->
+            <tr>
+                <td><span data-bind="text: name"></span></td>
+                <td>
+                    <ul data-bind="foreach: muscles">
+                        <li><span data-bind="text: $data"></span></li>
+                    </ul>
+                </td>
+                <td><p data-bind="text: description"></p></td>
+                <td><button data-bind="click: $parent.beginEdit" class="btn btn-primary"><i class="fa fa-pencil"></i></button></td>
+            </tr>
+            <!-- /ko -->
+        </tbody>
+    </table>
+{% endblock %}
+
+{% block js_footer%}
+    <script type="text/javascript">
+        function ExercisesViewModel() {
+            var self = this;
+            self.exercisesURI = 'http://localhost:5000/gym/api/v1.0/exercises';
+            self.exercises = ko.observableArray();
+
+            self.ajax = function(uri, method, data) {
+                var request = {
+                    url: uri,
+                    type: method,
+                    contentType: "application/json",
+                    accepts: "application/json",
+                    cache: false,
+                    dataType: 'json',
+                    data: JSON.stringify(data),
+                    error: function(jqXHR) {
+                        console.log("ajax error " + jqXHR.status);
+                    }
+                };
+                return $.ajax(request);
+            }
+
+            self.beginAdd = function() {
+                alert("Add");
+            }
+
+            self.beginEdit = function(exercise) {
+                alert("Edit: " + exercise.id);
+            }
+
+            self.ajax(self.exercisesURI, 'GET').done(function(data) {
+                for (var i = 0; i < data.exercises.length; i++) {
+                    var item = {
+                        description: ko.observable(data.exercises[i].description),
+                        name: ko.observable(data.exercises[i].name),
+                        use_weight: ko.observable(data.exercises[i].use_weight),
+                        muscles: ko.observable(data.exercises[i].muscles),
+                        id: data.exercises[i].id
+                    };
+                    self.exercises.push(item);
+                }
+            });
+        }
+        ko.applyBindings(new ExercisesViewModel(), $('#main')[0]);
+    </script>
+{% endblock %}
