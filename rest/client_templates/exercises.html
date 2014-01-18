@@ -62,7 +62,8 @@
             }
 
             self.beginEdit = function(exercise) {
-                alert("Edit: " + exercise.id);
+                console.log("Edit: " + exercise.id());
+                alert("Edit: " + exercise.id());
             }
 
             self.ajax(self.exercisesURI, 'GET').done(function(data) {
@@ -72,7 +73,7 @@
                         name: ko.observable(data.exercises[i].name),
                         use_weight: ko.observable(data.exercises[i].use_weight),
                         muscles: ko.observable(data.exercises[i].muscles),
-                        id: data.exercises[i].id
+                        id: ko.observable(data.exercises[i].id)
                     };
                     self.exercises.push(item);
                 }
