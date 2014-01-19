@@ -1,7 +1,7 @@
 __author__ = 'elwood'
 
 import datetime
-#from flask import url_for
+from flask import url_for
 from rest import db
 
 class Exercise(db.Document):
@@ -20,14 +20,17 @@ class Exercise(db.Document):
     def __str__(self):
         return self.name
 
-    def to_dict(self):
+    def to_dict(self, include_id=False):
         values = [
-            ('id', str(self.id)),
             ('name', self.name),
             ('use_weight', self.use_weight),
             ('muscles', self.muscles),
             ('description', self.description),
         ]
+        if include_id:
+            values.append(('id', str(self.id)))
+        else:
+            values.append(('uri', url_for('exercises.get_exercise', id=str(self.id))))
         return dict(values)
 
 

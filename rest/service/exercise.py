@@ -13,17 +13,15 @@ def get_exercises():
 @mod.route('/exercises/<id>', methods = ['GET'])
 def get_exercise(id):
     exercise = Exercise.objects.get_or_404(id=id)
-    return jsonify(exercise=exercise.to_dict())
+    return jsonify(exercise=exercise.to_dict(True))
 
 @mod.route('/exercises', methods = ['POST'])
 def create_exercise():
     if not request.json or not 'name' in request.json:
         abort(400)
-
     exercise = parse_json_data(request.json)
     exercise.save()
-
-    return jsonify(exercise=exercise.to_dict()), 201
+    return jsonify(exercise=exercise.to_dict(True)), 201
 
 @mod.route('/exercises/<id>', methods = ['PUT'])
 def update_exercise(id):
@@ -36,10 +34,9 @@ def update_exercise(id):
         abort(400)
     if 'use_weight' in request.json and type(request.json['use_weight']) is not bool:
         abort(400)
-
     exercise = parse_json_data(request.json, exercise)
     exercise.save()
-    return jsonify(exercise=exercise.to_dict())
+    return jsonify(exercise=exercise.to_dict(True))
 
 @mod.route('/exercises/<id>', methods = ['DELETE'])
 def delete_exercise(id):
@@ -55,14 +52,10 @@ def parse_json_data(json, exercise=None):
     if not exercise:
         exercise = Exercise(use_weight=False)
     exercise.name = json['name']
-
     if 'use_weight' in request.json:
         exercise.use_weight = json['use_weight']
-
     if not exercise.muscles or 'muscles' in request.json:
         exercise.muscles = json.get('muscles', [])
-
     if not exercise.description or 'description' in request.json:
         exercise.description = json.get('description', '')
-
     return exercise
